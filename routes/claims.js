@@ -19,47 +19,55 @@ router.post('/', async function(req, res, next) {
   var address = req.body.address
   var message = req.body.message
   var encrypt = req.body.encrypt
-  var recaptcha = req.body['g-recaptcha-response']
-
-  var common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
-  var transferTx = nem.model.objects.create('transferTransaction')(
-    address,
-    randomInRange(config.xem.min, config.xem.max),
-    message
-  );
-  var txEntity = nem.model.transactions.prepare('transferTransaction')(
-    common,
-    transferTx,
-    nem.model.network.data.testnet.id
-  );
-
-  var params = _.omitBy({ address: address, message: message }, _.isEmpty);
+  var reCaptcha = req.body['g-recaptcha-response']
+  var reCaptchaUrl = reCaptchaValidationUrl(reCaptcha);
+  var params = _.omitBy({ address: address, message: message, encrypt: encrypt }, _.isEmpty);
   var query  = qs.stringify(params);
 
-  request({url: reCaptchaValidationUrl(recaptcha), json: true}, function(err, reCaptchaRes) {
-    if (!err && reCaptchaRes.statusCode == 200 && reCaptchaRes.body['success']) {
-      nem.model.transactions.send(common, txEntity, endpoint).then(function(nisRes) {
-        var txHash = nisRes['transactionHash']['data'];
-        req.flash('txHash', txHash);
-        res.redirect('/?' + query);
-      }).catch(function(err) {
-        // TODO: display what happened.
-        // console.log(err)
-        req.flash('error', 'Transaction failed. Please try again.');
-        res.redirect('/?' + query);
-      });
-    } else {
-      req.flash('error', 'Failed to pass ReCaptcha. Please try again.');
-      res.redirect('/?' + query);
-    }
-  });
+  requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
+    return nem.com.requests.account.data(endpoint, address);
+  }).then(function(nisRes) {
+    var common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
+    var transferTx = nem.model.objects.create('transferTransaction')(
+      address,
+      randomInRange(config.xem.min, config.xem.max),
+      message
+    );
 
-  // TODO: message encryption
-  // if (encrypt) {
-  //   transferTx.encryptMessage = true;
-  //   transferTx.recipientPubKey = fetchPubKeyByAddress(address);
-  // }
+    if (encrypt) {
+      transferTx.encryptMessage = true;
+      transferTx.recipientPubKey = nisRes['account']['publicKey'];
+    }
+
+    var txEntity = nem.model.transactions.prepare('transferTransaction')(
+      common,
+      transferTx,
+      nem.model.network.data.testnet.id
+    );
+
+    return nem.model.transactions.send(common, txEntity, endpoint);
+  }).then(function(nisRes) {
+    var txHash = nisRes['transactionHash']['data'];
+    req.flash('txHash', txHash);
+    res.redirect('/?' + query);
+  }).catch(function(err) {
+    // TODO: display what happened.
+    req.flash('error', 'Transaction failed. Please try again.');
+    res.redirect('/?' + query);
+  });
 });
+
+function requestReCaptchaValidation(url) {
+  return new Promise(function(resolve, reject)  {
+    request({url: url, json: true}, function(err, res) {
+      if (!err && res.statusCode == 200 && res.body['success']) {
+        resolve(res.body['success']);
+      } else {
+        reject(err);
+      }
+    });
+  });
+}
 
 function reCaptchaValidationUrl(response) {
   var q = qs.stringify({
@@ -71,11 +79,6 @@ function reCaptchaValidationUrl(response) {
 
 function randomInRange(from, to) {
   return ~~(Math.random() * (from - to + 1) + to);
-}
-
-function fetchPubKeyByAddress(address) {
-  var nisRes = nem.com.requests.account.data(endpoint, address);
-  return nisRes['account']['publicKey'];
 }
 
 module.exports = router;
