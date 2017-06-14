@@ -16,20 +16,25 @@ const endpoint = nem.model.objects.create('endpoint')(
 const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify'
 
 router.post('/', async function(req, res, next) {
-  var address = req.body.address
-  var message = req.body.message
-  var encrypt = req.body.encrypt
-  var reCaptcha = req.body['g-recaptcha-response']
+  var address = req.body.address;
+  var message = req.body.message;
+  var encrypt = req.body.encrypt;
+  var reCaptcha = req.body['g-recaptcha-response'];
   var reCaptchaUrl = reCaptchaValidationUrl(reCaptcha);
-  var params = _.omitBy({ address: address, message: message, encrypt: encrypt }, _.isEmpty);
+  var params = _.omitBy({
+    address: address,
+    message: message,
+    encrypt: encrypt
+  }, _.isEmpty);
   var query  = qs.stringify(params);
+  var sanitized_address = address.replace(/-/g, '');
 
   requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
-    return nem.com.requests.account.data(endpoint, address);
+    return nem.com.requests.account.data(endpoint, sanitized_address);
   }).then(function(nisRes) {
     var common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
     var transferTx = nem.model.objects.create('transferTransaction')(
-      address,
+      sanitized_address,
       randomInRange(config.xem.min, config.xem.max),
       message
     );
