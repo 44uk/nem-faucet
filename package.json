@@ -29,7 +29,7 @@
     "express-session": "^1.15.3",
     "lodash": "^4.17.4",
     "morgan": "~1.8.2",
-    "nem-sdk": "^1.2.3",
+    "nem-sdk": "^1.3.0",
     "pug": "~2.0.0-rc.2",
     "serve-favicon": "~2.4.3",
     "stylus": "^0.54.5"
