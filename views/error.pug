@@ -1,6 +1,12 @@
 extends layout
 
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+  .container
+    .row
+      .col
+        div
+          h3 Something went wrong.
+          img(src="/images/computer_error_bluescreen.png")
+          p Try that again, and if it still doesn't work, let me know.
+          p
+            a(href="https://twitter.com/44uk_i3", target="_blank") @44uk_i3

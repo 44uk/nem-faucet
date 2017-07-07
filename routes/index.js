@@ -26,7 +26,8 @@ router.get('/', function(req, res, next) {
       faucetBalance: nisRes['account']['balance'],
       recaptcha_secret: process.env.RECAPTCHA_CLIENT_SECRET
     });
-  });
+  })
+  .catch(next);
 });
 
 module.exports = router;
