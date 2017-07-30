@@ -40,8 +40,8 @@ router.post('/', async function(req, res, next) {
     );
 
     if (encrypt) {
-      transferTx.encryptMessage = true;
-      transferTx.recipientPubKey = nisRes['account']['publicKey'];
+      transferTx.messageType = 2;
+      transferTx.recipientPublicKey = nisRes['account']['publicKey'];
     }
 
     var txEntity = nem.model.transactions.prepare('transferTransaction')(
