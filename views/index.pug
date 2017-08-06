@@ -17,6 +17,9 @@ block content
           div
             label Message
             input._width100(type="text" name="message" value=message placeholder="(Optional)")
+          div
+            label Amount
+            input._width100(type="number" name="amount" value=amount placeholder=`(Up to ${xemMax}. Optional, if you want fixed amount)` min="1" max=xemMax)
             label
               input(type="checkbox" name="encrypt" value="1" checked=encrypt)
               span.-label-body  Encrypt message

@@ -19,23 +19,26 @@ router.post('/', async function(req, res, next) {
   var address = req.body.address;
   var message = req.body.message;
   var encrypt = req.body.encrypt;
+  var amount  = sanitizeAmount(req.body.amount);
   var reCaptcha = req.body['g-recaptcha-response'];
   var reCaptchaUrl = reCaptchaValidationUrl(reCaptcha);
   var params = _.omitBy({
     address: address,
     message: message,
-    encrypt: encrypt
+    encrypt: encrypt,
+    amount:  amount,
   }, _.isEmpty);
+
   var query  = qs.stringify(params);
-  var sanitized_address = address.replace(/-/g, '');
+  var sanitizedAddress = address.replace(/-/g, '');
 
   requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
-    return nem.com.requests.account.data(endpoint, sanitized_address);
+    return nem.com.requests.account.data(endpoint, sanitizedAddress);
   }).then(function(nisRes) {
     var common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
     var transferTx = nem.model.objects.create('transferTransaction')(
-      sanitized_address,
-      randomInRange(config.xem.min, config.xem.max),
+      sanitizedAddress,
+      amount || randomInRange(config.xem.min, config.xem.max),
       message
     );
 
@@ -84,6 +87,17 @@ function reCaptchaValidationUrl(response) {
 
 function randomInRange(from, to) {
   return ~~(Math.random() * (from - to + 1) + to);
+}
+
+function sanitizeAmount(amount) {
+  amount = parseInt(amount);
+  if(amount > config.xem.max) {
+    return config.xem.max;
+  } else if(amount < 1) {
+    return 1;
+  } else {
+    return amount;
+  }
 }
 
 module.exports = router;
