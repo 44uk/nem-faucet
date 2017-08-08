@@ -9,6 +9,8 @@
 
 ```shell
 # set enviroment variables
+# * NIS_ADDR
+# * NIS_PORT
 # * NEM_PRIVATE_KEY
 # * NEM_ADDRESS
 # * RECAPTCHA_CLIENT_SECRET
