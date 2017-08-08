@@ -9,8 +9,8 @@ const qs = require('querystring');
 const _ = require('lodash');
 
 const endpoint = nem.model.objects.create('endpoint')(
-  nem.model.nodes.defaultTestnet,
-  nem.model.nodes.defaultPort
+  process.env.NIS_ADDR || nem.model.nodes.defaultTestnet,
+  process.env.NIS_PORT || nem.model.nodes.defaultPort
 );
 
 const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify'

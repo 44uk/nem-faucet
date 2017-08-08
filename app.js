@@ -8,12 +8,11 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const stylus = require('stylus');
 
+const app = express();
+require('dotenv').config({ path: '.env.' + app.get('env') });
+
 const index = require('./routes/index');
 const claims = require('./routes/claims');
-
-const app = express();
-
-require('dotenv').config({ path: '.env.' + app.get('env') });
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

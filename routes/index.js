@@ -4,8 +4,8 @@ const router = express.Router();
 const nem = require('nem-sdk').default;
 
 const endpoint = nem.model.objects.create('endpoint')(
-  nem.model.nodes.defaultTestnet,
-  nem.model.nodes.defaultPort
+  process.env.NIS_ADDR || nem.model.nodes.defaultTestnet,
+  process.env.NIS_PORT || nem.model.nodes.defaultPort
 );
 
 router.get('/', function(req, res, next) {
