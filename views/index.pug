@@ -20,9 +20,6 @@ block content
           div
             label Amount
             input._width100(type="number" name="amount" value=amount placeholder=`(Up to ${xemMax}. Optional, if you want fixed amount)` min="1" max=xemMax)
-            label
-              input(type="checkbox" name="encrypt" value="1" checked=encrypt)
-              span.-label-body  Encrypt message
 
         .col.m4
           div
@@ -31,6 +28,14 @@ block content
           div
             label &nbsp;
             button.button._primary._width100(type="submit") Claim!
+
+          div
+            label
+              input(type="checkbox" name="encrypt" value="1" checked=encrypt)
+              span.-label-body  Encrypt message
+            label
+              input(type="checkbox" name="mosaic" value="1" checked=mosaic)
+              span.-label-body  Version2
 
     .row
       .col.m8

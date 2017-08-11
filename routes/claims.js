@@ -7,6 +7,7 @@ const async = require('async');
 const nem = require('nem-sdk').default;
 const qs = require('querystring');
 const _ = require('lodash');
+_.mixin({ isBlank: val => { return _.isEmpty(val) && !_.isNumber(val) || _.isNaN(val); } });
 
 const endpoint = nem.model.objects.create('endpoint')(
   process.env.NIS_ADDR || nem.model.nodes.defaultTestnet,
@@ -19,6 +20,7 @@ router.post('/', async function(req, res, next) {
   var address = req.body.address;
   var message = req.body.message;
   var encrypt = req.body.encrypt;
+  var mosaic  = req.body.mosaic;
   var amount  = sanitizeAmount(req.body.amount);
   var reCaptcha = req.body['g-recaptcha-response'];
   var reCaptchaUrl = reCaptchaValidationUrl(reCaptcha);
@@ -26,19 +28,23 @@ router.post('/', async function(req, res, next) {
     address: address,
     message: message,
     encrypt: encrypt,
+    mosaic:  mosaic,
     amount:  amount,
-  }, _.isEmpty);
+  }, _.isBlank);
 
-  var query  = qs.stringify(params);
+  var query = qs.stringify(params);
   var sanitizedAddress = address.replace(/-/g, '');
 
   requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
     return nem.com.requests.account.data(endpoint, sanitizedAddress);
   }).then(function(nisRes) {
     var common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
+    var txAmount = mosaic ? 1 : amount || randomInRange(config.xem.min, config.xem.max);
+    var txEntity = null;
+
     var transferTx = nem.model.objects.create('transferTransaction')(
       sanitizedAddress,
-      amount || randomInRange(config.xem.min, config.xem.max),
+      txAmount,
       message
     );
 
@@ -47,11 +53,18 @@ router.post('/', async function(req, res, next) {
       transferTx.recipientPublicKey = nisRes['account']['publicKey'];
     }
 
-    var txEntity = nem.model.transactions.prepare('transferTransaction')(
-      common,
-      transferTx,
-      nem.model.network.data.testnet.id
-    );
+    if(mosaic) {
+      var mosaicDefinitionMetaDataPair = nem.model.objects.get('mosaicDefinitionMetaDataPair');
+      var mosaicAttachment = nem.model.objects.create('mosaicAttachment')(
+        'nem', 'xem',
+        (amount || randomInRange(config.xem.min, config.xem.max)) * 1000000
+      );
+      transferTx.mosaics.push(mosaicAttachment);
+
+      txEntity = nem.model.transactions.prepare('mosaicTransferTransaction')(common, transferTx, mosaicDefinitionMetaDataPair, nem.model.network.data.testnet.id);
+    } else {
+      txEntity = nem.model.transactions.prepare('transferTransaction')(common, transferTx, nem.model.network.data.testnet.id);
+    }
 
     return nem.model.transactions.send(common, txEntity, endpoint);
   }).then(function(nisRes) {
@@ -60,6 +73,7 @@ router.post('/', async function(req, res, next) {
     res.redirect('/?' + query);
   }).catch(function(err) {
     // TODO: display what happened.
+    console.error(err);
     req.flash('error', 'Transaction failed. Please try again.');
     res.redirect('/?' + query);
   });

@@ -12,6 +12,7 @@ router.get('/', function(req, res, next) {
   var address = req.query.address;
   var message = req.query.message;
   var encrypt = req.query.encrypt;
+  var mosaic  = req.query.mosaic;
   var amount  = req.query.amount;
 
   nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS).then(function(nisRes) {
@@ -23,6 +24,7 @@ router.get('/', function(req, res, next) {
       address: address,
       message: message,
       encrypt: encrypt,
+      mosaic: mosaic,
       amount: amount,
       faucetAddress: nisRes['account']['address'],
       faucetBalance: nisRes['account']['balance'],
