@@ -48,7 +48,7 @@ router.post('/', async function(req, res, next) {
       message
     );
 
-    if (encrypt) {
+    if (message && encrypt) {
       transferTx.messageType = 2;
       transferTx.recipientPublicKey = nisRes['account']['publicKey'];
     }
