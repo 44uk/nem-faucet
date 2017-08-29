@@ -11,6 +11,8 @@
 # set enviroment variables
 # * NIS_ADDR
 # * NIS_PORT
+# * NEM_XEM_MIN
+# * NEM_XEM_MAX
 # * NEM_PRIVATE_KEY
 # * NEM_ADDRESS
 # * RECAPTCHA_CLIENT_SECRET
