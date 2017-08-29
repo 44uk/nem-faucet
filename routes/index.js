@@ -8,6 +8,9 @@ const endpoint = nem.model.objects.create('endpoint')(
   process.env.NIS_PORT || nem.model.nodes.defaultPort
 );
 
+const MAX_XEM = process.env.NEM_XEM_MAX || config.xem.max;
+const MIN_XEM = process.env.NEM_XEM_MIN || config.xem.min;
+
 router.get('/', function(req, res, next) {
   var address = req.query.address;
   var message = req.query.message;
@@ -19,8 +22,8 @@ router.get('/', function(req, res, next) {
     res.render('index', {
       txHash: req.flash('txHash'),
       error: req.flash('error'),
-      xemMax: config.xem.max,
-      xemMin: config.xem.min,
+      xemMax: MAX_XEM,
+      xemMin: MIN_XEM,
       address: address,
       message: message,
       encrypt: encrypt,

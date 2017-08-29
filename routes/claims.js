@@ -14,7 +14,9 @@ const endpoint = nem.model.objects.create('endpoint')(
   process.env.NIS_PORT || nem.model.nodes.defaultPort
 );
 
-const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify'
+const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
+const MAX_XEM = process.env.NEM_XEM_MAX || config.xem.max;
+const MIN_XEM = process.env.NEM_XEM_MIN || config.xem.min;
 
 router.post('/', async function(req, res, next) {
   var address = req.body.address;
@@ -39,7 +41,7 @@ router.post('/', async function(req, res, next) {
     return nem.com.requests.account.data(endpoint, sanitizedAddress);
   }).then(function(nisRes) {
     var common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
-    var txAmount = mosaic ? 1 : amount || randomInRange(config.xem.min, config.xem.max);
+    var txAmount = mosaic ? 1 : amount || randomInRange(MIN_XEM, MAX_XEM);
     var txEntity = null;
 
     var transferTx = nem.model.objects.create('transferTransaction')(
@@ -57,7 +59,7 @@ router.post('/', async function(req, res, next) {
       var mosaicDefinitionMetaDataPair = nem.model.objects.get('mosaicDefinitionMetaDataPair');
       var mosaicAttachment = nem.model.objects.create('mosaicAttachment')(
         'nem', 'xem',
-        (amount || randomInRange(config.xem.min, config.xem.max)) * 1000000
+        (amount || randomInRange(MIN_XEM, MAX_XEM)) * 1000000
       );
       transferTx.mosaics.push(mosaicAttachment);
 
@@ -105,8 +107,8 @@ function randomInRange(from, to) {
 
 function sanitizeAmount(amount) {
   amount = parseInt(amount);
-  if(amount > config.xem.max) {
-    return config.xem.max;
+  if(amount > MAX_XEM) {
+    return MAX_XEM;
   } else if(amount < 1) {
     return 1;
   } else {
