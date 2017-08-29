@@ -15,8 +15,8 @@ const endpoint = nem.model.objects.create('endpoint')(
 );
 
 const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
-const MAX_XEM = process.env.NEM_XEM_MAX || config.xem.max;
-const MIN_XEM = process.env.NEM_XEM_MIN || config.xem.min;
+const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
+const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
 
 router.post('/', async function(req, res, next) {
   var address = req.body.address;

@@ -8,8 +8,8 @@ const endpoint = nem.model.objects.create('endpoint')(
   process.env.NIS_PORT || nem.model.nodes.defaultPort
 );
 
-const MAX_XEM = process.env.NEM_XEM_MAX || config.xem.max;
-const MIN_XEM = process.env.NEM_XEM_MIN || config.xem.min;
+const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
+const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
 
 router.get('/', function(req, res, next) {
   var address = req.query.address;
