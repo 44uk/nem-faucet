@@ -17,8 +17,11 @@ router.get('/', function(req, res, next) {
   let encrypt = req.query.encrypt;
   let mosaic  = req.query.mosaic;
   let amount  = req.query.amount;
+  let drained = false;
 
   nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS).then(function(nisRes) {
+    drained = nisRes['account']['balance'] < MIN_XEM * 1000000;
+
     res.render('index', {
       txHash: req.flash('txHash'),
       error: req.flash('error'),
@@ -29,6 +32,7 @@ router.get('/', function(req, res, next) {
       encrypt: encrypt,
       mosaic: mosaic,
       amount: amount,
+      drained: drained,
       faucetAddress: nisRes['account']['address'],
       faucetBalance: nisRes['account']['balance'],
       recaptcha_secret: process.env.RECAPTCHA_CLIENT_SECRET

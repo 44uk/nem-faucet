@@ -2,6 +2,9 @@ extends layout
 
 block content
   .container
+    if drained
+      include _drained
+
     if error != ''
       include _error
 
