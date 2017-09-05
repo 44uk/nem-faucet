@@ -13,13 +13,13 @@ block content
         .col.m8
           div
             label Address
-            input._width100(type="text" name="address" value=address placeholder="Address start with a capital T")
+            input._width100(type="text" name="address" value=address placeholder="Address start with a capital T" pattern="^T.+" title="TESTNET address start with a capital T" required autofocus)
           div
             label Message
             input._width100(type="text" name="message" value=message placeholder="(Optional)")
           div
             label Amount
-            input._width100(type="number" name="amount" value=amount placeholder=`(Up to ${xemMax}. Optional, if you want fixed amount)` min="1" max=xemMax)
+            input._width100(type="number" name="amount" value=amount placeholder=`(Up to ${xemMax}. Optional, if you want fixed amount)` min="0" max=xemMax step="0.05")
 
         .col.m4
           div

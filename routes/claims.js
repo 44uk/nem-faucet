@@ -106,11 +106,11 @@ function randomInRange(from, to) {
 }
 
 function sanitizeAmount(amount) {
-  amount = parseInt(amount);
+  amount = parseFloat(amount);
   if(amount > MAX_XEM) {
     return MAX_XEM;
-  } else if(amount < 1) {
-    return 1;
+  } else if(amount < 0) {
+    return 0;
   } else {
     return amount;
   }
