@@ -12,11 +12,11 @@ const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
 const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
 
 router.get('/', function(req, res, next) {
-  var address = req.query.address;
-  var message = req.query.message;
-  var encrypt = req.query.encrypt;
-  var mosaic  = req.query.mosaic;
-  var amount  = req.query.amount;
+  let address = req.query.address;
+  let message = req.query.message;
+  let encrypt = req.query.encrypt;
+  let mosaic  = req.query.mosaic;
+  let amount  = req.query.amount;
 
   nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS).then(function(nisRes) {
     res.render('index', {
