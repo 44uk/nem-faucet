@@ -16,13 +16,13 @@ block content
         .col.m8
           div
             label Address
-            input._width100(type="text" name="address" value=address placeholder="Address start with a capital T" pattern="^T.+" title="TESTNET address start with a capital T" required autofocus)
+            input._width100(type="text" name="address" value=address placeholder="Address start with a capital T" pattern="^T.+" title="TESTNET address start with a capital T" required autofocus disabled=drained)
           div
             label Message
-            input._width100(type="text" name="message" value=message placeholder="(Optional)")
+            input._width100(type="text" name="message" value=message placeholder="(Optional)" disabled=drained)
           div
             label Amount
-            input._width100(type="number" name="amount" value=amount placeholder=`(Up to ${xemMax}. Optional, if you want fixed amount)` min="0" max=xemMax step="0.05")
+            input._width100(type="number" name="amount" value=amount placeholder=`(Up to ${xemMax}. Optional, if you want fixed amount)` min="0" max=xemMax step="0.05" disabled=drained)
 
         .col.m4
           div
@@ -30,14 +30,14 @@ block content
 
           div
             label &nbsp;
-            button.button._primary._width100(type="submit") Claim!
+            button.button._primary._width100(type="submit" disabled=drained) Claim!
 
           div
             label
-              input(type="checkbox" name="encrypt" value="1" checked=encrypt)
+              input(type="checkbox" name="encrypt" value="1" checked=encrypt disabled=drained)
               span.-label-body  Encrypt message
             label
-              input(type="checkbox" name="mosaic" value="1" checked=mosaic)
+              input(type="checkbox" name="mosaic" value="1" checked=mosaic disabled=drained)
               span.-label-body  Version2
 
     .row
