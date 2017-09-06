@@ -38,29 +38,34 @@ router.post('/', async function(req, res, next) {
   let sanitizedAddress = address.replace(/-/g, '');
 
   requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
-    return nem.com.requests.account.data(endpoint, sanitizedAddress);
-  }).then(function(nisRes) {
+    return Promise.all([
+      nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS),
+      nem.com.requests.account.data(endpoint, sanitizedAddress)
+    ]);
+  }).then(function(nisReses) {
+    let srcAccount  = nisReses[0];
+    let distAccount = nisReses[1];
+
+    // left 1xem for fee
+    let faucetBalance = (srcAccount['account']['balance'] / 1000000) - 1;
     let common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
-    let txAmount = mosaic ? 1 : amount || randomInRange(MIN_XEM, MAX_XEM);
+    let txAmount = amount || Math.min(faucetBalance, randomInRange(MIN_XEM, MAX_XEM));
     let txEntity = null;
 
     let transferTx = nem.model.objects.create('transferTransaction')(
       sanitizedAddress,
-      txAmount,
+      mosaic ? 1 : txAmount,
       message
     );
 
     if (message && encrypt) {
       transferTx.messageType = 2;
-      transferTx.recipientPublicKey = nisRes['account']['publicKey'];
+      transferTx.recipientPublicKey = distAccount['account']['publicKey'];
     }
 
     if(mosaic) {
       let mosaicDefinitionMetaDataPair = nem.model.objects.get('mosaicDefinitionMetaDataPair');
-      let mosaicAttachment = nem.model.objects.create('mosaicAttachment')(
-        'nem', 'xem',
-        (amount || randomInRange(MIN_XEM, MAX_XEM)) * 1000000
-      );
+      let mosaicAttachment = nem.model.objects.create('mosaicAttachment')('nem', 'xem', txAmount * 1000000);
       transferTx.mosaics.push(mosaicAttachment);
 
       txEntity = nem.model.transactions.prepare('mosaicTransferTransaction')(common, transferTx, mosaicDefinitionMetaDataPair, nem.model.network.data.testnet.id);
