@@ -19,14 +19,14 @@ const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
 const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
 
 router.post('/', async function(req, res, next) {
-  var address = req.body.address;
-  var message = req.body.message;
-  var encrypt = req.body.encrypt;
-  var mosaic  = req.body.mosaic;
-  var amount  = sanitizeAmount(req.body.amount);
-  var reCaptcha = req.body['g-recaptcha-response'];
-  var reCaptchaUrl = reCaptchaValidationUrl(reCaptcha);
-  var params = _.omitBy({
+  let address = req.body.address;
+  let message = req.body.message;
+  let encrypt = req.body.encrypt;
+  let mosaic  = req.body.mosaic;
+  let amount  = sanitizeAmount(req.body.amount);
+  let reCaptcha = req.body['g-recaptcha-response'];
+  let reCaptchaUrl = reCaptchaValidationUrl(reCaptcha);
+  let params = _.omitBy({
     address: address,
     message: message,
     encrypt: encrypt,
@@ -34,17 +34,17 @@ router.post('/', async function(req, res, next) {
     amount:  amount,
   }, _.isBlank);
 
-  var query = qs.stringify(params);
-  var sanitizedAddress = address.replace(/-/g, '');
+  let query = qs.stringify(params);
+  let sanitizedAddress = address.replace(/-/g, '');
 
   requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
     return nem.com.requests.account.data(endpoint, sanitizedAddress);
   }).then(function(nisRes) {
-    var common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
-    var txAmount = mosaic ? 1 : amount || randomInRange(MIN_XEM, MAX_XEM);
-    var txEntity = null;
+    let common = nem.model.objects.create('common')('', process.env.NEM_PRIVATE_KEY);
+    let txAmount = mosaic ? 1 : amount || randomInRange(MIN_XEM, MAX_XEM);
+    let txEntity = null;
 
-    var transferTx = nem.model.objects.create('transferTransaction')(
+    let transferTx = nem.model.objects.create('transferTransaction')(
       sanitizedAddress,
       txAmount,
       message
@@ -56,8 +56,8 @@ router.post('/', async function(req, res, next) {
     }
 
     if(mosaic) {
-      var mosaicDefinitionMetaDataPair = nem.model.objects.get('mosaicDefinitionMetaDataPair');
-      var mosaicAttachment = nem.model.objects.create('mosaicAttachment')(
+      let mosaicDefinitionMetaDataPair = nem.model.objects.get('mosaicDefinitionMetaDataPair');
+      let mosaicAttachment = nem.model.objects.create('mosaicAttachment')(
         'nem', 'xem',
         (amount || randomInRange(MIN_XEM, MAX_XEM)) * 1000000
       );
@@ -70,7 +70,7 @@ router.post('/', async function(req, res, next) {
 
     return nem.model.transactions.send(common, txEntity, endpoint);
   }).then(function(nisRes) {
-    var txHash = nisRes['transactionHash']['data'];
+    let txHash = nisRes['transactionHash']['data'];
     req.flash('txHash', txHash);
     res.redirect('/?' + query);
   }).catch(function(err) {
@@ -94,7 +94,7 @@ function requestReCaptchaValidation(url) {
 }
 
 function reCaptchaValidationUrl(response) {
-  var q = qs.stringify({
+  let q = qs.stringify({
     secret: process.env.RECAPTCHA_SERVER_SECRET,
     response: response
   });
