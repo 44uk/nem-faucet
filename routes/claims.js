@@ -40,11 +40,21 @@ router.post('/', async function(req, res, next) {
   requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
     return Promise.all([
       nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS),
-      nem.com.requests.account.data(endpoint, sanitizedAddress)
+      nem.com.requests.account.data(endpoint, sanitizedAddress),
+      nem.com.requests.account.transactions.outgoing(endpoint, process.env.NEM_ADDRESS, null, null)
     ]);
   }).then(function(nisReses) {
-    let srcAccount  = nisReses[0];
+    let srcAccount = nisReses[0];
     let distAccount = nisReses[1];
+    let outgoings = nisReses[2];
+
+    outgoings.data.forEach((txmdp) => {
+      let tx = txmdp.transaction;
+      let limit = nem.utils.helpers.createNEMTimeStamp() - 43200;
+      if(tx.recipient === sanitizedAddress && tx.timeStamp > limit) {
+        throw new Error('Claiming limit exeeded.');
+      }
+    });
 
     // left 1xem for fee
     let faucetBalance = (srcAccount['account']['balance'] / 1000000) - 1;
@@ -79,9 +89,9 @@ router.post('/', async function(req, res, next) {
     req.flash('txHash', txHash);
     res.redirect('/?' + query);
   }).catch(function(err) {
-    // TODO: display what happened.
     console.error(err);
-    req.flash('error', 'Transaction failed. Please try again.');
+    // req.flash('error', 'Transaction failed. Please try again.');
+    req.flash('error', err.data ? err.data.message : err.toString());
     res.redirect('/?' + query);
   });
 });
