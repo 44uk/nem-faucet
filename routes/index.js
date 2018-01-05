@@ -27,6 +27,7 @@ router.get('/', function(req, res, next) {
       error: req.flash('error'),
       xemMax: MAX_XEM,
       xemMin: MIN_XEM,
+      xemOpt: ~~((MIN_XEM + MAX_XEM) / 2),
       address: address,
       message: message,
       encrypt: encrypt,
