@@ -17,6 +17,7 @@ const endpoint = nem.model.objects.create('endpoint')(
 const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
 const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
 const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
+const ENOUGH_BALANCE = parseInt(process.env.ENOUGH_BALANCE || 100000000);
 
 router.post('/', async function(req, res, next) {
   let address = req.body.address;
@@ -40,21 +41,25 @@ router.post('/', async function(req, res, next) {
   requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
     return Promise.all([
       nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS),
-      nem.com.requests.account.data(endpoint, sanitizedAddress),
-      nem.com.requests.account.transactions.outgoing(endpoint, process.env.NEM_ADDRESS, null, null)
+      nem.com.requests.account.data(endpoint, sanitizedAddress)
+      // nem.com.requests.account.transactions.outgoing(endpoint, process.env.NEM_ADDRESS, null, null)
     ]);
   }).then(function(nisReses) {
     let srcAccount = nisReses[0];
     let distAccount = nisReses[1];
-    let outgoings = nisReses[2];
+    // let outgoings = nisReses[2].data;
 
-    outgoings.data.forEach((txmdp) => {
-      let tx = txmdp.transaction;
-      let limit = nem.utils.helpers.createNEMTimeStamp() - 43200;
-      if(tx.recipient === sanitizedAddress && tx.timeStamp > limit) {
-        throw new Error('Claiming limit exeeded.');
-      }
-    });
+    if(distAccount['account']['balance'] > ENOUGH_BALANCE) {
+      throw new Error(`Your account seems to have enougth balance => (${distAccount['account']['balance'].toLocaleString()})`);
+    }
+
+    // outgoings.forEach((txmdp) => {
+    //   let tx = txmdp.transaction;
+    //   let limit = nem.utils.helpers.createNEMTimeStamp() - 43200;
+    //   if(tx.recipient === sanitizedAddress && tx.timeStamp > limit) {
+    //     throw new Error(`Claiming limit exeeded. Please wait 43200`);
+    //   }
+    // });
 
     // left 1xem for fee
     let faucetBalance = (srcAccount['account']['balance'] / 1000000) - 1;
