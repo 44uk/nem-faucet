@@ -10,6 +10,7 @@ const endpoint = nem.model.objects.create('endpoint')(
 
 const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
 const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
+const OPT_XEM = parseInt(process.env.NEM_XEM_OPT || ~~((MAX_XEM + MIN_XEM) / 2));
 
 router.get('/', function(req, res, next) {
   let address = req.query.address;
@@ -27,7 +28,7 @@ router.get('/', function(req, res, next) {
       error: req.flash('error'),
       xemMax: MAX_XEM,
       xemMin: MIN_XEM,
-      xemOpt: ~~((MIN_XEM + MAX_XEM) / 2),
+      xemOpt: OPT_XEM,
       address: address,
       message: message,
       encrypt: encrypt,

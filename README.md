@@ -9,12 +9,17 @@
 
 ```shell
 # set enviroment variables
+# * COOKIE_SECRET
+# * PORT
+# * NEM_ADDRESS
+# * NEM_PRIVATE_KEY
+# * NEM_XEM_MAX
+# * NEM_XEM_MIN
+# * ENOUGH_BALANCE
+# * UNCONFIRMED_COUNT
+# * WAIT_HEIGHT
 # * NIS_ADDR
 # * NIS_PORT
-# * NEM_XEM_MIN
-# * NEM_XEM_MAX
-# * NEM_PRIVATE_KEY
-# * NEM_ADDRESS
 # * RECAPTCHA_CLIENT_SECRET
 # * RECAPTCHA_SERVER_SECRET
 # or edit .env.development
