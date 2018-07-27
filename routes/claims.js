@@ -71,7 +71,7 @@ router.post('/', async function(req, res, next) {
     });
 
     if(distAccount['account']['balance'] >= ENOUGH_BALANCE) {
-      throw new Error(`Your account seems to have enougth balance => (${distAccount['account']['balance'].toLocaleString()})`);
+      throw new Error(`Your account already have enougth balance => (${distAccount['account']['balance'].toLocaleString()})`);
     }
 
     // left 1xem for fee
