@@ -21,7 +21,7 @@ const ENOUGH_BALANCE = parseInt(process.env.ENOUGH_BALANCE || 100000000000);
 const MAX_UNCONFIRMED = parseInt(process.env.MAX_UNCONFIRMED || 99);
 const WAIT_HEIGHT = parseInt(process.env.WAIT_HEIGHT || 0);
 
-router.post('/', async function(req, res, next) {
+router.post('/', async (req, res, next) => {
   let address = req.body.address;
   let message = req.body.message;
   let encrypt = req.body.encrypt;
@@ -40,15 +40,20 @@ router.post('/', async function(req, res, next) {
   let query = qs.stringify(params);
   let sanitizedAddress = address.replace(/-/g, '');
 
-  requestReCaptchaValidation(reCaptchaUrl).then(function(reCaptchRes) {
-    return Promise.all([
-      nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS),
-      nem.com.requests.account.data(endpoint, sanitizedAddress),
-      nem.com.requests.chain.height(endpoint),
-      nem.com.requests.account.transactions.outgoing(endpoint, process.env.NEM_ADDRESS, null, null),
-      nem.com.requests.account.transactions.unconfirmed(endpoint, process.env.NEM_ADDRESS, null, null)
-    ]);
-  }).then(function(nisReses) {
+  const reCaptchaRes = await requestReCaptchaValidation(reCaptchaUrl).catch(_ => false);
+  if(!reCaptchaRes) {
+    req.flash('error', 'Failed ReCaptcha. Please try again.');
+    res.redirect(`/?${query}`);
+    return;
+  }
+
+  Promise.all([
+    nem.com.requests.account.data(endpoint, process.env.NEM_ADDRESS),
+    nem.com.requests.account.data(endpoint, sanitizedAddress),
+    nem.com.requests.chain.height(endpoint),
+    nem.com.requests.account.transactions.outgoing(endpoint, process.env.NEM_ADDRESS, null, null),
+    nem.com.requests.account.transactions.unconfirmed(endpoint, process.env.NEM_ADDRESS, null, null)
+  ]).then(nisReses => {
     let srcAccount = nisReses[0];
     let distAccount = nisReses[1];
     let currentHeight = nisReses[2].height;
@@ -102,11 +107,11 @@ router.post('/', async function(req, res, next) {
     }
 
     return nem.model.transactions.send(common, txEntity, endpoint);
-  }).then(function(nisRes) {
+  }).then(nisRes => {
     let txHash = nisRes['transactionHash']['data'];
     req.flash('txHash', txHash);
     res.redirect('/?' + query);
-  }).catch(function(err) {
+  }).catch(err => {
     console.error(err);
     // req.flash('error', 'Transaction failed. Please try again.');
     req.flash('error', err.data ? err.data.message : err.toString());
@@ -115,8 +120,8 @@ router.post('/', async function(req, res, next) {
 });
 
 function requestReCaptchaValidation(url) {
-  return new Promise(function(resolve, reject)  {
-    request({url: url, json: true}, function(err, res) {
+  return new Promise((resolve, reject) => {
+    request({url: url, json: true}, (err, res) => {
       if (!err && res.statusCode == 200 && res.body['success']) {
         resolve(res.body['success']);
       } else {

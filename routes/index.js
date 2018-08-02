@@ -3,16 +3,17 @@ const express = require('express');
 const router = express.Router();
 const nem = require('nem-sdk').default;
 
+const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
+const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
+const OPT_XEM = parseInt(process.env.NEM_XEM_OPT || ~~((MAX_XEM + MIN_XEM) / 2));
+const NETWORK = (process.env.NETWORK || 'testnet');
+
 const endpoint = nem.model.objects.create('endpoint')(
   process.env.NIS_ADDR || nem.model.nodes.defaultTestnet,
   process.env.NIS_PORT || nem.model.nodes.defaultPort
 );
 
-const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
-const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
-const OPT_XEM = parseInt(process.env.NEM_XEM_OPT || ~~((MAX_XEM + MIN_XEM) / 2));
-
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
   let address = req.query.address;
   let message = req.query.message;
   let encrypt = req.query.encrypt;
