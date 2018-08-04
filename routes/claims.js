@@ -7,7 +7,7 @@ const async = require('async');
 const nem = require('nem-sdk').default;
 const qs = require('querystring');
 const _ = require('lodash');
-_.mixin({ isBlank: val => { return _.isEmpty(val) && !_.isNumber(val) || _.isNaN(val); } });
+_.mixin({ isBlank: val => _.isEmpty(val) && !_.isNumber(val) || _.isNaN(val) });
 
 const endpoint = nem.model.objects.create('endpoint')(
   process.env.NIS_ADDR || nem.model.nodes.defaultTestnet,
@@ -15,6 +15,7 @@ const endpoint = nem.model.objects.create('endpoint')(
 );
 
 const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
+const GOOGLE_RECAPTCHA_ENABLED = !_.isBlank(process.env.RECAPTCHA_SERVER_SECRET);
 const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
 const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
 const ENOUGH_BALANCE = parseInt(process.env.ENOUGH_BALANCE || 100000000000);
@@ -40,11 +41,13 @@ router.post('/', async (req, res, next) => {
   let query = qs.stringify(params);
   let sanitizedAddress = address.replace(/-/g, '');
 
-  const reCaptchaRes = await requestReCaptchaValidation(reCaptchaUrl).catch(_ => false);
-  if(!reCaptchaRes) {
-    req.flash('error', 'Failed ReCaptcha. Please try again.');
-    res.redirect(`/?${query}`);
-    return;
+  if(GOOGLE_RECAPTCHA_ENABLED) {
+    const reCaptchaRes = await requestReCaptchaValidation(reCaptchaUrl).catch(_ => false);
+    if(!reCaptchaRes) {
+      req.flash('error', 'Failed ReCaptcha. Please try again.');
+      res.redirect(`/?${query}`);
+      return;
+    }
   }
 
   Promise.all([
