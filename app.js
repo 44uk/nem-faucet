@@ -11,9 +11,6 @@ const stylus = require('stylus');
 const app = express();
 require('dotenv').config({ path: '.env.' + app.get('env') });
 
-const index = require('./routes/index');
-const claims = require('./routes/claims');
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -25,6 +22,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
+  resave: false,
+  saveUninitialized: false,
   secret: process.env.COOKIE_SECRET,
   cookie: { maxAge: 60000 }
 }));
@@ -33,6 +32,14 @@ app.use(stylus.middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/node_modules', express.static(__dirname + '/node_modules'));
 
+// init NEMLibrary
+const NETWORK = (process.env.NETWORK || 'TEST_NET');
+const nem = require('nem-library');
+nem.NEMLibrary.bootstrap(nem.NetworkTypes[NETWORK]);
+
+// actions
+const index = require('./routes/index');
+const claims = require('./routes/claims');
 app.use('/', index);
 app.use('/claims', claims);
 
