@@ -1,11 +1,11 @@
 {
-  "name": "test-nem-faucet",
-  "description": "Testnet NEM faucet web application",
+  "name": "nem-faucet",
+  "description": "Faucet application for nem",
   "version": "0.0.1",
   "author": "44uk",
   "license": "MIT",
   "private": true,
-  "homepage": "https://github.com/44uk/test-nem-faucet",
+  "homepage": "https://github.com/44uk/nem-faucet",
   "engines": {
     "node": "8.9.1"
   },
