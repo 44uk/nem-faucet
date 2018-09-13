@@ -12,9 +12,9 @@
 # * COOKIE_SECRET
 # * PORT
 # * NETWORK
+# * NIS_PROTO
 # * NIS_ADDR
 # * NIS_PORT
-# * NEM_ADDRESS
 # * NEM_PRIVATE_KEY
 # * NEM_XEM_MAX
 # * NEM_XEM_MIN
@@ -40,7 +40,7 @@ $ npm run dev
 ## :muscle: Powered by
 
 * [NEM - Distributed Ledger Technology (Blockchain)](https://www.nem.io/)
-* [NEM-sdk - NEM Developer Kit for Node.js and the browser](https://github.com/QuantumMechanics/NEM-sdk)
+* [aleixmorgadas/nem\-library\-ts: NEM Library Official Repository](https://github.com/aleixmorgadas/nem-library-ts)
 * [Express - Fast, unopinionated, minimalist web framework for node.](https://github.com/expressjs/express)
 * [Beauter - A simple framework for faster and beautiful responsive sites](http://beauter.outboxcraft.com/)
 
