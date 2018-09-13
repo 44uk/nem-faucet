@@ -16,7 +16,7 @@ block content
         .col.m8
           div
             label Address
-            input._width100(type="text" name="address" value=address placeholder="Address start with a capital T" pattern="^T.+" title="TESTNET address start with a capital T" required autofocus disabled=drained)
+            input._width100(type="text" name="address" value=address placeholder=`Address start with a capital ${faucetAddress.charAt(0)}` pattern=`^${faucetAddress.charAt(0)}.+` title=`${network} address start with a capital ${faucetAddress.charAt(0)}` required autofocus disabled=drained)
           div
             label Message
             input._width100(type="text" name="message" value=message placeholder="(Optional)" disabled=drained)
@@ -39,7 +39,7 @@ block content
               span.-label-body  Encrypt message
             label
               input(type="checkbox" name="mosaic" value="1" checked=mosaic disabled=drained)
-              span.-label-body  Version2
+              span.-label-body  Version2 (as mosaic)
 
     .row
       .col.m8
@@ -47,13 +47,16 @@ block content
         input._width100(type="text" readonly value=faucetAddress)
       .col.m4
         label Faucet Balance
-        input._width100._alignRight(type="text" readonly value=`${faucetBalance / 1000000}`)
+        input._width100._alignRight(type="text" readonly value=faucetBalance)
 
     .row
       .col.m12
         h3 Readme
         ul
-          li This is "TESTNET XEM faucet".
+          li This is "#{network} XEM faucet" on
+            | &nbsp;
+            a(href=`${nodeUrl}` target="_blank") #{nodeUrl}
+            | .
           li You can get XEM randomly from #{xemMin} to #{xemMax}.
           li This is an experimental server, the spec can be change without notice.
           li Please send back XEM when you need no longer need.
