@@ -1,4 +1,8 @@
 {
+  "private": true,
+  "engines": {
+    "node": "8"
+  },
   "name": "functions",
   "scripts": {
     "lint": "tslint --project tsconfig.json",
@@ -12,11 +16,20 @@
   "main": "lib/index.js",
   "dependencies": {
     "firebase-admin": "~6.0.0",
-    "firebase-functions": "^2.1.0"
+    "firebase-functions": "^2.1.0",
+    "js-joda": "^1.9.2",
+    "nem-library": "^2.0.0-RC3",
+    "phin": "^3.2.0",
+    "querystring": "^0.2.0",
+    "rxjs": "^6.3.3"
   },
   "devDependencies": {
+    "prettier": "^1.15.3",
     "tslint": "~5.8.0",
     "typescript": "~2.8.3"
   },
-  "private": true
+  "prettier": {
+    "semi": true,
+    "singleQuote": true
+  }
 }
