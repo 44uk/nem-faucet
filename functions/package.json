@@ -15,11 +15,11 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "axios": "^0.18.0",
     "firebase-admin": "~6.0.0",
     "firebase-functions": "^2.1.0",
     "js-joda": "^1.9.2",
     "nem-library": "^2.0.0-RC3",
-    "phin": "^3.2.0",
     "querystring": "^0.2.0",
     "rxjs": "^6.3.3"
   },
