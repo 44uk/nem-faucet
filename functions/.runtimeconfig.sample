@@ -1,0 +1,14 @@
+{
+  "network": "TEST_NET",
+  "nisProto": "http",
+  "nisAddr": "nis-testnet.44uk.net",
+  "nisPort": "7890",
+  "privateKey": "__PUT_YOUR_PRIVATE_KEY__",
+  "xemMax": "50000000",
+  "xemMin": "10000000",
+  "xemOpt": "30000000",
+  "enoughBalance": "300000000",
+  "maxUnconfirmed": "1",
+  "waitHeight": "10",
+  "recaptchaServerSecret": "__PUT_YOUR_SECRET__"
+}

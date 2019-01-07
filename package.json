@@ -1,7 +1,7 @@
 {
   "name": "nem-faucet",
   "version": "0.0.2",
-  "description": "nem faucet",
+  "description": "nem faucet application",
   "main": "index.js",
   "repository": "https://github.com/44uk/nem-faucet.git",
   "author": "Yoshiyuki Ieyama <yukku0423@gmail.com>",
