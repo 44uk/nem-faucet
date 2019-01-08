@@ -6,17 +6,20 @@
     ]
   },
   "hosting": {
-    "public": "public",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
     "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
+      { "source": "/faucet", "function": "faucet" },
+      { "source": "/claim", "function": "claim" },
+      { "source": "**", "destination": "/index.html" }
+    ],
+    "predeploy": [
+      "cd \"$RESOURCE_DIR\"; yarn lint",
+      "cd \"$RESOURCE_DIR\"; yarn build"
     ]
   }
 }
