@@ -7,7 +7,7 @@
   "private": true,
   "homepage": "https://github.com/44uk/nem-faucet",
   "engines": {
-    "node": "8.9.1"
+    "node": ">=8.9.1"
   },
   "scripts": {
     "start": "node ./bin/www",
@@ -21,16 +21,17 @@
     "@outboxcraft/beauter": "^0.3.0",
     "async": "^2.6.1",
     "body-parser": "~1.18.3",
-    "config": "^2.0.1",
+    "config": "^3.0.1",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.3",
-    "debug": "~4.0.1",
-    "dotenv": "^6.0.0",
-    "express": "~4.16.3",
+    "debug": "~4.1.0",
+    "dotenv": "^6.2.0",
+    "express": "~4.16.4",
     "express-session": "^1.15.6",
+    "js-joda": "^1.9.2",
     "lodash": "^4.17.11",
     "morgan": "~1.9.1",
-    "nem-library": "^1.1.0-RC1",
+    "nem-library": "^2.0.0-RC3",
     "pug": "~2.0.3",
     "serve-favicon": "~2.5.0",
     "stylus": "^0.54.5"
