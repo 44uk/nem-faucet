@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 const stylus = require('stylus');
 
 const app = express();
-require('dotenv').config({ path: '.env.' + app.get('env') });
+require('dotenv').config({ path: '.env' });
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
