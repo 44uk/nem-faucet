@@ -2163,7 +2163,7 @@ js-base64@^2.3.2:
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.5.0.tgz#42255ba183ab67ce59a0dee640afdc00ab5ae93e"
   integrity sha512-wlEBIZ5LP8usDylWbDNhKPEFVFdI5hCHpnVoT/Ysvoi/PRhJENm/Rlh9TvjYB38HFfKZN7OzEbRjmjvLkFw11g==
 
-js-joda@^1.6.1:
+js-joda@^1.6.1, js-joda@^1.9.2:
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/js-joda/-/js-joda-1.9.2.tgz#eff9e125329fe183c8d59f35e2cdbf1bcb127831"
   integrity sha512-gW45RnlxvxG3VRumOFlYr/dB3gIsE3fuC9uxTCxfVnPTTUh/NaXo09GT74g4HY34zM7omksxSSJFd7oXimKrEA==

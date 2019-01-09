@@ -1,6 +1,7 @@
 const config = require('config');
 const express = require('express');
 const request = require('request');
+const joda = require('js-joda');
 const nem = require('nem-library');
 const rx = require('rxjs');
 const qs = require('querystring');
@@ -132,17 +133,27 @@ function buildMessage(message, encrypt = false, publicAccount = null) {
   }
 }
 
+function createDelayedTimeWindow() {
+  const currentTimeStamp = (new Date()).getTime() - 1000 * 30; // delay 30sec.
+  const timeStampDateTime = joda.LocalDateTime.ofInstant(
+    joda.Instant.ofEpochMilli(currentTimeStamp),
+    joda.ZoneId.SYSTEM
+  );
+  const deadlineDateTime = timeStampDateTime.plus(24, joda.ChronoUnit.HOURS);
+  return new nem.TimeWindow(timeStampDateTime, deadlineDateTime);
+};
+
 function buildTransferTransaction(address, transferrable, message, asMosaic = false) {
   if (asMosaic) {
     return nem.TransferTransaction.createWithMosaics(
-      nem.TimeWindow.createWithDeadline(),
+      createDelayedTimeWindow(),
       address,
       [transferrable],
       message
     )
   } else {
     return nem.TransferTransaction.create(
-      nem.TimeWindow.createWithDeadline(),
+      createDelayedTimeWindow(),
       address,
       transferrable,
       message

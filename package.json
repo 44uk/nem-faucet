@@ -28,6 +28,7 @@
     "dotenv": "^6.2.0",
     "express": "~4.16.4",
     "express-session": "^1.15.6",
+    "js-joda": "^1.9.2",
     "lodash": "^4.17.11",
     "morgan": "~1.9.1",
     "nem-library": "^2.0.0-RC3",
