@@ -1,0 +1,65 @@
+{
+  "name": "nem-faucet",
+  "description": "Faucet application for nem",
+  "keywords": [
+    "nem",
+    "blockchain"
+  ],
+  "website": "https://github.com/44uk/nem-faucet/",
+  "repository": "https://github.com/44uk/nem-faucet/tree/master",
+  "env": {
+    "COOKIE_SECRET": {
+      "generator": "secret"
+    },
+    "PORT": {
+      "value": "80"
+    },
+    "NETWORK": {
+      "value": "TEST_NET"
+    },
+    "NIS_PROTO": {
+      "value": "http",
+      "description": "NIS protocol to connect."
+    },
+    "NIS_ADDR": {
+      "value": "nis-testnet.44uk.net",
+      "description": "NIS host to connect."
+    },
+    "NIS_PORT": {
+      "value": "7890",
+      "description": "NIS port to connect."
+    },
+    "NEM_PRIVATE_KEY": {
+      "value": "__SET_YOUR_KEY__",
+      "description": "PrivateKey of Faucet Account that you want to assign."
+    },
+    "NEM_XEM_MIN": {
+      "value": "10"
+    },
+    "NEM_XEM_MAX": {
+      "value": "50"
+    },
+    "NEM_XEM_OPT": {
+      "value": "30"
+    },
+    "ENOUGH_BALANCE": {
+      "value": "200000000"
+    },
+    "MAX_UNCONFIRMED": {
+      "value": "1"
+    },
+    "WAIT_HEIGHT": {
+      "value": "3"
+    },
+    "RECAPTCHA_CLIENT_SECRET": {
+      "required": false,
+      "description": "(Optional) disabled ReCaptcha if it is blank."
+    },
+    "RECAPTCHA_SERVER_SECRET": {
+      "required": false,
+      "description": "(Optional) disabled ReCaptcha if it is blank."
+    }
+  },
+  "addons": [],
+  "buildpacks": [{"url": "heroku/nodejs"}]
+}

@@ -5,6 +5,15 @@
 * [NEM Testnet Faucet - You can get Testnet XEM for development / testing.](http://test-nem-faucet.44uk.net)
 
 
+## :sparkles: Deploy to Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+Need to set `NEM_PRIVATE_KEY`(PrivateKey of your faucet account) while deployment.
+
+If you want to use ReCaptcha, set both variables `RECAPTCHA_CLIENT_SECRET` and `RECAPTCHA_SERVER_SECRET`.
+
+
 ## :fire: Setup
 
 ```shell
