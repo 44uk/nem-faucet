@@ -38,14 +38,13 @@ const WAIT_HEIGHT = parseInt(CONFIG.waitHeight, 10) || 0;
 const RECAPTCHA_SERVER_SECRET = CONFIG.recaptchaServerSecret;
 const GOOGLE_RECAPTCHA_ENABLED = !!RECAPTCHA_SERVER_SECRET;
 const GOOGLE_RECAPTCHA_ENDPOINT = "https://www.google.com/recaptcha/api/siteverify";
-const NETWORK = CONFIG.network;
+const NETWORK: keyof NetworkTypes = CONFIG.network;
 const NODE_CONFIG = [{
   domain:   CONFIG.nisAddr,
   port:     CONFIG.nisPort,
   protocol: CONFIG.nisProto
 }];
-// NEMLibrary.bootstrap(NetworkTypes[NETWORK]);
-NEMLibrary.bootstrap(NetworkTypes.TEST_NET);
+NEMLibrary.bootstrap(NetworkTypes[NETWORK]);
 const FAUCET_ACCOUNT = Account.createWithPrivateKey(CONFIG.privateKey);
 
 const chainHttp = new ChainHttp(NODE_CONFIG);
