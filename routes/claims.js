@@ -133,6 +133,10 @@ function buildMessage(message, encrypt = false, publicAccount = null) {
   }
 }
 
+/**
+ * Create valid transaction without using NetworkTime.
+ * This is work around.
+ */
 function createDelayedTimeWindow() {
   const currentTimeStamp = (new Date()).getTime() - 1000 * 30; // delay 30sec.
   const timeStampDateTime = joda.LocalDateTime.ofInstant(
