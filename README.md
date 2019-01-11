@@ -17,23 +17,23 @@ If you want to use ReCaptcha, set both variables `RECAPTCHA_CLIENT_SECRET` and `
 ## :fire: Setup
 
 ```shell
-# set enviroment variables
-# * COOKIE_SECRET
-# * PORT
-# * NETWORK
-# * NIS_PROTO
-# * NIS_ADDR
-# * NIS_PORT
-# * NEM_PRIVATE_KEY
-# * NEM_XEM_MAX
-# * NEM_XEM_MIN
-# * NEM_XEM_OPT
-# * ENOUGH_BALANCE
-# * MAX_UNCONFIRMED
-# * WAIT_HEIGHT
-# * RECAPTCHA_CLIENT_SECRET
-# * RECAPTCHA_SERVER_SECRET
-# or see .env.development
+# Set these env variables
+# See `.env.sample`
+#  COOKIE_SECRET
+#  PORT
+#  NETWORK
+#  NIS_PROTO
+#  NIS_ADDR
+#  NIS_PORT
+#  NEM_PRIVATE_KEY
+#  NEM_XEM_MAX
+#  NEM_XEM_MIN
+#  NEM_XEM_OPT
+#  ENOUGH_BALANCE
+#  MAX_UNCONFIRMED
+#  WAIT_HEIGHT
+#  RECAPTCHA_CLIENT_SECRET
+#  RECAPTCHA_SERVER_SECRET
 
 # install packages
 $ npm install
