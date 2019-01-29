@@ -1,7 +1,7 @@
 {
   "name": "nem-faucet",
   "description": "Faucet application for nem",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "44uk",
   "license": "MIT",
   "private": true,
@@ -31,7 +31,7 @@
     "js-joda": "^1.9.2",
     "lodash": "^4.17.11",
     "morgan": "~1.9.1",
-    "nem-library": "^1.1.0-RC1",
+    "nem-library": "^2.0.0-RC4",
     "pug": "~2.0.3",
     "serve-favicon": "~2.5.0",
     "stylus": "^0.54.5"

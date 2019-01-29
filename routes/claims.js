@@ -4,15 +4,16 @@ const request = require('request');
 const joda = require('js-joda');
 const nem = require('nem-library');
 const rx = require('rxjs');
+const op = require('rxjs/operators')
 const qs = require('querystring');
 const _ = require('lodash');
 _.mixin({ isBlank: val => _.isEmpty(val) && !_.isNumber(val) || _.isNaN(val) });
 
 const GOOGLE_RECAPTCHA_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
 const GOOGLE_RECAPTCHA_ENABLED = !_.isBlank(process.env.RECAPTCHA_SERVER_SECRET);
-const MAX_XEM = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
-const MIN_XEM = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
-const ENOUGH_BALANCE = parseInt(process.env.ENOUGH_BALANCE || 100000000000);
+const XEM_MAX = parseInt(process.env.NEM_XEM_MAX || config.xem.max);
+const XEM_MIN = parseInt(process.env.NEM_XEM_MIN || config.xem.min);
+const ENOUGH_BALANCE = parseInt(process.env.ENOUGH_BALANCE || 100);
 const MAX_UNCONFIRMED = parseInt(process.env.MAX_UNCONFIRMED || 99);
 const WAIT_HEIGHT = parseInt(process.env.WAIT_HEIGHT || 0);
 const NODE_CONFIG = [{
@@ -20,7 +21,7 @@ const NODE_CONFIG = [{
   domain: process.env.NIS_ADDR,
   port: process.env.NIS_PORT
 }];
-const FAUCET_ACCOUNT = nem.Account.createWithPrivateKey(process.env.NEM_PRIVATE_KEY);
+const FAUCET_ACCOUNT = nem.Account.createWithPrivateKey(process.env.NEM_PRIVATE_KEY)
 
 const router = express.Router();
 const accountHttp = new nem.AccountHttp(NODE_CONFIG);
@@ -53,62 +54,83 @@ router.post('/', async (req, res, next) => {
   const lastBlock = await chainHttp.getBlockchainLastBlock().toPromise().catch(err => err);
   const currentHeight = lastBlock.height;
 
-  rx.Observable.forkJoin(
-    accountHttp.getFromAddress(claimerAddress),
-    accountHttp.getFromAddress(FAUCET_ACCOUNT.address),
-    accountHttp.outgoingTransactions(FAUCET_ACCOUNT.address)
-      .flatMap(_ => _)
-      .filter(tx => tx.recipient.address == claimerAddress.address && currentHeight - tx.transactionInfo.height < WAIT_HEIGHT)
-      .toArray(),
-    accountHttp.unconfirmedTransactions(FAUCET_ACCOUNT.address)
-      .flatMap(_ => _)
-      .filter(tx => tx.recipient.address == claimerAddress.address)
-      .toArray()
-  ).flatMap(results => {
-    claimerAccount = results[0];
-    faucetAccount  = results[1];
-    outgoings   = results[2];
-    unconfirmed = results[3];
+  rx.forkJoin([
+    accountHttp.getFromAddress(claimerAddress).pipe(
+      op.map(account => {
+        if (account.balance.balance > ENOUGH_BALANCE * 1000000) {
+          throw new Error("Your account already has enough balance.");
+        }
+        return account;
+      }),
+    ),
+    accountHttp.getFromAddress(FAUCET_ACCOUNT.address).pipe(
+      op.map(account => {
+        if (account.balance.balance < 50000) {
+          throw new Error("The faucet has been drained.");
+        }
+        return account;
+      }),
+    ),
+    accountHttp.outgoingTransactions(FAUCET_ACCOUNT.address, {pageSize: 100}).pipe(
+      op.mergeMap(_ => _),
+      op.filter((tx) => tx.type === nem.TransactionTypes.TRANSFER),
+      op.map(_ => _),
+      op.filter(tx => {
+        return currentHeight - tx.getTransactionInfo().height < WAIT_HEIGHT
+          && tx.recipient.equals(claimerAddress)
+          && ! tx.signer.address.equals(FAUCET_ACCOUNT.address);
+      }),
+      op.toArray(),
+      op.map(txes => {
+        if (txes.length > 0) { throw new Error("Too many claiming."); }
+        return true;
+      }),
+    ),
+    accountHttp.unconfirmedTransactions(FAUCET_ACCOUNT.address).pipe(
+      op.mergeMap(_ => _),
+      op.filter(tx => tx.type === nem.TransactionTypes.TRANSFER),
+      op.map(_ => _),
+      op.filter(tx => tx.recipient.equals(claimerAddress)),
+      op.toArray(),
+      op.map(txes => {
+        if (txes.length > MAX_UNCONFIRMED) { throw new Error("Too many unconfirmed claiming."); }
+        return true;
+      }),
+    )
+  ]).pipe(
+    op.mergeMap(results => {
+      const claimerAccount = results[0];
+      const faucetAccount  = results[1];
+      const outgoings   = results[2];
+      const unconfirmed = results[3];
 
-    if(claimerAccount.balance !== null && claimerAccount.balance.balance >= ENOUGH_BALANCE) {
-      console.debug(`claimer balance => %d`, claimerAccount.balance.balance)
-      throw new Error(`Your account already have enougth balance => (${claimerAccount.balance.balance})`);
-    }
+      if (!(outgoings && unconfirmed)) {
+        throw new Error("Something wrong with outgoing or unconfirmed checking.");
+      }
 
-    if(outgoings.length > 0) {
-      console.debug(`outgoing length => %d`, outgoings.length)
-      throw new Error(`Too many claiming. Please wait ${WAIT_HEIGHT} more blocks confirmed.`);
-    }
+      // left 1xem for fee
+      const faucetBalance = (faucetAccount.balance.balance) - 1000000;
+      const amount = sanitizeAmount(req.body.amount)
+        || Math.min(faucetBalance, randomInRange(XEM_MIN, XEM_MAX, 3));
 
-    if(unconfirmed.length > MAX_UNCONFIRMED) {
-      console.debug(`unconfirmed length => %d`, unconfirmed.length)
-      throw new Error(`Too many unconfirmed claiming. Please wait for ${MAX_UNCONFIRMED} confirming.`);
-    }
+      const message = buildMessage(
+        req.body.message,
+        req.body.encrypt,
+        claimerAccount.publicAccount
+      );
 
-    if(claimerAccount.balance.balance >= ENOUGH_BALANCE) {
-      throw new Error(`Your account already have enougth balance => (${claimerAccount.balance.balance.toLocaleString()})`);
-    }
-
-    // left 1xem for fee
-    const faucetBalance = (faucetAccount.balance.balance / 1000000) - 1;
-    const txAmount = sanitizeAmount(params.amount) || Math.min(faucetBalance, randomInRange(MIN_XEM, MAX_XEM));
-
-    const message = buildMessage(
-      params.message,
-      params.encrypt,
-      claimerAccount.publicAccount
-    );
-    const transferTx = buildTransferTransaction(
-      claimerAddress,
-      new nem.XEM(txAmount),
-      message,
-      params.mosaic
-    );
-    const signedTx = FAUCET_ACCOUNT.signTransaction(transferTx);
-    return transactionHttp.announceTransaction(signedTx);
-  }).subscribe(
-    nemAnnounceResult => {
-      let txHash = nemAnnounceResult.transactionHash.data;
+      const transferTx = buildTransferTransaction(
+        claimerAddress,
+        nem.XEM.fromRelative(amount),
+        message,
+        req.body.asMosaic
+      );
+      const signedTx = FAUCET_ACCOUNT.signTransaction(transferTx);
+      return transactionHttp.announceTransaction(signedTx);
+    })
+  ).subscribe(
+    result => {
+      const txHash = result.transactionHash.data;
       req.flash('txHash', txHash);
       res.redirect(`/?${query}`);
     },
@@ -178,11 +200,11 @@ function requestReCaptchaValidation(url) {
 }
 
 function reCaptchaValidationUrl(response) {
-  let q = qs.stringify({
+  const q = qs.stringify({
     secret: process.env.RECAPTCHA_SERVER_SECRET,
     response: response
   });
-  return GOOGLE_RECAPTCHA_ENDPOINT + '?' + q;
+  return `${GOOGLE_RECAPTCHA_ENDPOINT}?${q}`;
 }
 
 function randomInRange(from, to) {
@@ -191,8 +213,8 @@ function randomInRange(from, to) {
 
 function sanitizeAmount(amount) {
   amount = parseFloat(amount);
-  if(amount > MAX_XEM) {
-    return MAX_XEM;
+  if(amount > XEM_MAX) {
+    return XEM_MAX;
   } else if(amount < 0) {
     return 0;
   } else {

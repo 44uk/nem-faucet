@@ -7,6 +7,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const stylus = require('stylus');
+const nem = require('nem-library');
 
 const app = express();
 require('dotenv').config({ path: '.env' });
@@ -16,7 +17,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -34,7 +35,6 @@ app.use('/node_modules', express.static(__dirname + '/node_modules'));
 
 // init NEMLibrary
 const NETWORK = (process.env.NETWORK || 'TEST_NET');
-const nem = require('nem-library');
 nem.NEMLibrary.bootstrap(nem.NetworkTypes[NETWORK]);
 
 // actions
