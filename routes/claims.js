@@ -123,7 +123,7 @@ router.post('/', async (req, res, next) => {
         claimerAddress,
         nem.XEM.fromRelative(amount),
         message,
-        req.body.asMosaic
+        req.body.mosaic
       );
       const signedTx = FAUCET_ACCOUNT.signTransaction(transferTx);
       return transactionHttp.announceTransaction(signedTx);
