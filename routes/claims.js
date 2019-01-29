@@ -171,7 +171,7 @@ function createDelayedTimeWindow() {
 
 function buildTransferTransaction(address, transferrable, message, asMosaic = false) {
   if (asMosaic) {
-    return nem.TransferTransaction.createWithMosaics(
+    return nem.TransferTransaction.createWithAssets(
       createDelayedTimeWindow(),
       address,
       [transferrable],
