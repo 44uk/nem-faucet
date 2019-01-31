@@ -22,19 +22,21 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({
-  resave: false,
-  saveUninitialized: false,
-  secret: process.env.COOKIE_SECRET,
-  cookie: { maxAge: 60000 }
-}));
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.COOKIE_SECRET,
+    cookie: { maxAge: 60000 }
+  })
+);
 app.use(flash());
 app.use(stylus.middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/node_modules', express.static(__dirname + '/node_modules'));
 
 // init NEMLibrary
-const NETWORK = (process.env.NETWORK || 'TEST_NET');
+const NETWORK = process.env.NETWORK || 'TEST_NET';
 nem.NEMLibrary.bootstrap(nem.NetworkTypes[NETWORK]);
 
 // actions
@@ -52,7 +54,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  console.error(err)
+  console.error(err);
 
   // set locals, only providing error in development
   res.locals.message = err.message;
