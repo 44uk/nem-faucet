@@ -24,7 +24,7 @@ const FAUCET_ACCOUNT = nem.Account.createWithPrivateKey(
 const router = express.Router();
 const accountHttp = new nem.AccountHttp(NODE_CONFIG);
 
-router.get('/', async (req, res, next) => {
+router.get('/', (req, res, next) => {
   const address = req.query.address;
   const message = req.query.message;
   const amount = req.query.amount;
@@ -50,7 +50,7 @@ router.get('/', async (req, res, next) => {
         nodeUrl: NODE_URL,
         faucetAddress: FAUCET_ACCOUNT.address.pretty(),
         faucetBalance: faucetBalance / 1000000,
-        recaptcha_secret: process.env.RECAPTCHA_CLIENT_SECRET
+        recaptchaSecret: process.env.RECAPTCHA_CLIENT_SECRET
       });
     },
     err => next(err)

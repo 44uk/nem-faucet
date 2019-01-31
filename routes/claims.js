@@ -52,7 +52,7 @@ router.post('/', async (req, res, next) => {
   const reCaptchaUrl = reCaptchaValidationUrl(reCaptcha);
 
   const query = qs.stringify(params);
-  const claimerAddress = new nem.Address(params.address);
+  const recipientAddress = new nem.Address(params.address);
 
   if (GOOGLE_RECAPTCHA_ENABLED) {
     const reCaptchaRes = await requestReCaptchaValidation(reCaptchaUrl).catch(
@@ -72,7 +72,7 @@ router.post('/', async (req, res, next) => {
   const currentHeight = lastBlock.height;
 
   rx.forkJoin([
-    accountHttp.getFromAddress(claimerAddress).pipe(
+    accountHttp.getFromAddress(recipientAddress).pipe(
       op.map(account => {
         if (account.balance.balance > ENOUGH_BALANCE * 1000000) {
           throw new Error('Your account already has enough balance.');
@@ -93,11 +93,10 @@ router.post('/', async (req, res, next) => {
       .pipe(
         op.mergeMap(_ => _),
         op.filter(tx => tx.type === nem.TransactionTypes.TRANSFER),
-        op.map(_ => _),
         op.filter(tx => {
           return (
             currentHeight - tx.getTransactionInfo().height < WAIT_HEIGHT &&
-            tx.recipient.equals(claimerAddress) &&
+            tx.recipient.equals(recipientAddress) &&
             !tx.signer.address.equals(FAUCET_ACCOUNT.address)
           );
         }),
@@ -112,8 +111,7 @@ router.post('/', async (req, res, next) => {
     accountHttp.unconfirmedTransactions(FAUCET_ACCOUNT.address).pipe(
       op.mergeMap(_ => _),
       op.filter(tx => tx.type === nem.TransactionTypes.TRANSFER),
-      op.map(_ => _),
-      op.filter(tx => tx.recipient.equals(claimerAddress)),
+      op.filter(tx => tx.recipient.equals(recipientAddress)),
       op.toArray(),
       op.map(txes => {
         if (txes.length > MAX_UNCONFIRMED) {
@@ -125,10 +123,12 @@ router.post('/', async (req, res, next) => {
   ])
     .pipe(
       op.mergeMap(results => {
-        const claimerAccount = results[0];
-        const faucetAccount = results[1];
-        const outgoings = results[2];
-        const unconfirmed = results[3];
+        const [
+          recipientAccount,
+          faucetAccount,
+          outgoings,
+          unconfirmed
+        ] = results;
 
         if (!(outgoings && unconfirmed)) {
           throw new Error(
@@ -140,16 +140,16 @@ router.post('/', async (req, res, next) => {
         const faucetBalance = faucetAccount.balance.balance - 1000000;
         const amount =
           sanitizeAmount(req.body.amount) ||
-          Math.min(faucetBalance, randomInRange(XEM_MIN, XEM_MAX, 3));
+          Math.min(faucetBalance, randomInRange(XEM_MIN, XEM_MAX));
 
         const message = buildMessage(
           req.body.message,
           req.body.encrypt,
-          claimerAccount.publicAccount
+          recipientAccount.publicAccount
         );
 
         const transferTx = buildTransferTransaction(
-          claimerAddress,
+          recipientAddress,
           nem.XEM.fromRelative(amount),
           message,
           req.body.mosaic
